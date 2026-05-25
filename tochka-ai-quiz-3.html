@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Я и ИИ: где ты сейчас?</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #7B3FE4;
+    --purple-dark: #5f2fc0;
+    --purple-light: #E8DEFF;
+    --purple-mid: #C9B0FF;
+    --blue-light: #D6EEFF;
+    --black: #1A1A1A;
+    --white: #ffffff;
+    --gray: #f5f5f7;
+    --text-muted: #888;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background: var(--white);
+    color: var(--black);
+    min-height: 100vh;
+  }
+
+  /* ─── IMPACT font fallback stack ─── */
+  .impact {
+    font-family: Impact, 'Arial Narrow', Arial, sans-serif;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    line-height: 0.92;
+  }
+
+  /* ─── LOGO ─── */
+  .logo {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    opacity: 0.9;
+  }
+  .logo-dark { color: var(--black); opacity: 1; }
+
+  /* ════════════════════════════════
+     INTRO SCREEN
+  ════════════════════════════════ */
+  #screen-intro {
+    background: var(--purple);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 28px 32px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #screen-intro::before {
+    content: '';
+    position: absolute;
+    right: -60px;
+    top: -60px;
+    width: 340px;
+    height: 340px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    pointer-events: none;
+  }
+
+  #screen-intro::after {
+    content: '';
+    position: absolute;
+    right: 40px;
+    bottom: 80px;
+    width: 180px;
+    height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    pointer-events: none;
+  }
+
+  .intro-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: auto;
+  }
+
+  .intro-tag {
+    display: inline-block;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.8);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 100px;
+  }
+
+  .intro-body {
+    margin-top: 48px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  .intro-title {
+    font-size: clamp(52px, 13vw, 88px);
+    color: var(--white);
+    margin-bottom: 0;
+  }
+
+  .intro-title .line2 {
+    color: var(--purple-light);
+  }
+
+  .intro-subtitle {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6;
+    margin-top: 20px;
+    max-width: 420px;
+  }
+
+  .intro-meta {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 28px;
+  }
+
+  .meta-pill {
+    background: rgba(255,255,255,0.15);
+    color: rgba(255,255,255,0.9);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    letter-spacing: 0.02em;
+  }
+
+  .btn-start {
+    margin-top: 36px;
+    display: inline-block;
+    background: var(--white);
+    color: var(--purple);
+    font-family: Impact, Arial, sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 18px 44px;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.2s;
+    align-self: flex-start;
+  }
+
+  .btn-start:hover {
+    background: var(--purple-light);
+    transform: scale(1.03);
+  }
+
+  /* ════════════════════════════════
+     QUIZ SCREEN
+  ════════════════════════════════ */
+  #screen-quiz {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+    background: var(--white);
+  }
+
+  /* Progress bar header */
+  .quiz-header {
+    background: var(--purple);
+    padding: 20px 28px 0;
+  }
+
+  .quiz-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .q-counter {
+    font-family: Impact, Arial, sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
+  }
+
+  .progress-track {
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--white);
+    border-radius: 10px;
+    transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* Question area */
+  .quiz-body {
+    padding: 32px 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .q-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 12px;
+  }
+
+  .q-text {
+    font-family: Impact, Arial, sans-serif;
+    font-size: clamp(24px, 5vw, 34px);
+    text-transform: uppercase;
+    line-height: 1.0;
+    color: var(--black);
+    margin-bottom: 32px;
+    letter-spacing: -0.01em;
+  }
+
+  /* Options */
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+  }
+
+  .option {
+    background: var(--purple-light);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: left;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1.5;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .option:hover {
+    background: var(--purple-mid);
+    border-color: var(--purple);
+    transform: translateX(4px);
+  }
+
+  .option.selected {
+    background: var(--purple);
+    border-color: var(--purple);
+    color: var(--white);
+    transform: translateX(6px);
+  }
+
+  .opt-num {
+    font-family: Impact, Arial, sans-serif;
+    font-size: 16px;
+    color: var(--purple);
+    flex-shrink: 0;
+    margin-top: 1px;
+    min-width: 20px;
+    transition: color 0.18s;
+  }
+
+  .option.selected .opt-num {
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* Open question */
+  .open-q {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .open-q textarea {
+    flex: 1;
+    min-height: 200px;
+    background: var(--purple-light);
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 18px 20px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1.7;
+    resize: none;
+    outline: none;
+    transition: border-color 0.2s;
+    white-space: pre-line;
+  }
+
+  .open-q textarea:focus {
+    border-color: var(--purple);
+  }
+
+  .open-q textarea::placeholder {
+    color: #aaa;
+    font-weight: 400;
+  }
+
+  /* Nav */
+  .quiz-nav {
+    padding: 20px 28px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-back {
+    background: none;
+    border: 2px solid var(--purple-light);
+    color: var(--text-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 22px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-back:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+
+  .btn-next {
+    background: var(--purple);
+    color: var(--white);
+    font-family: Impact, Arial, sans-serif;
+    font-size: 16px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 14px 36px;
+    border: none;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.18s;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  .btn-next.ready {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .btn-next.ready:hover {
+    background: var(--purple-dark);
+    transform: scale(1.03);
+  }
+
+  /* ════════════════════════════════
+     RESULT SCREEN
+  ════════════════════════════════ */
+  #screen-result {
+    display: none;
+    min-height: 100vh;
+    flex-direction: column;
+  }
+
+  .result-hero {
+    padding: 28px 28px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .result-hero::after {
+    content: '';
+    position: absolute;
+    right: -40px;
+    bottom: -40px;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    pointer-events: none;
+  }
+
+  .result-level-tag {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border-radius: 100px;
+    margin-bottom: 20px;
+  }
+
+  .result-title-hero {
+    font-size: clamp(38px, 9vw, 64px);
+    color: var(--white);
+    margin-bottom: 16px;
+  }
+
+  .result-subtitle-hero {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.6;
+    max-width: 440px;
+  }
+
+  /* Level bar */
+  .level-dots {
+    display: flex;
+    gap: 8px;
+    margin-top: 24px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .level-dot {
+    width: 32px;
+    height: 6px;
+    border-radius: 100px;
+    background: rgba(255,255,255,0.25);
+  }
+
+  .level-dot.active {
+    background: var(--white);
+  }
+
+  /* Result body */
+  .result-body {
+    padding: 28px 28px 0;
+    flex: 1;
+  }
+
+  .result-block {
+    background: var(--purple-light);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 14px;
+  }
+
+  .result-block-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 10px;
+  }
+
+  .result-block p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--black);
+    line-height: 1.7;
+  }
+
+  .result-block p strong {
+    color: var(--purple);
+  }
+
+  .result-next {
+    background: var(--purple);
+    border-radius: 20px;
+    padding: 24px;
+    margin-bottom: 14px;
+  }
+
+  .result-next .result-block-label {
+    color: rgba(255,255,255,0.7);
+  }
+
+  .result-next p {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--white);
+    line-height: 1.7;
+  }
+
+  .result-footer {
+    padding: 20px 28px 40px;
+  }
+
+  /* Steps cards */
+  .steps-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 12px;
+    padding: 0 28px;
+    margin-top: 4px;
+  }
+
+  .steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 28px;
+    margin-bottom: 14px;
+  }
+
+  .step-card {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    background: var(--gray);
+    border-radius: 16px;
+    padding: 18px 20px;
+  }
+
+  .step-num {
+    font-family: Impact, Arial, sans-serif;
+    font-size: 28px;
+    color: var(--purple-mid);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 36px;
+  }
+
+  .step-content {}
+
+  .step-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+
+  .step-text {
+    font-size: 13px;
+    font-weight: 400;
+    color: #555;
+    line-height: 1.6;
+  }
+
+  .btn-restart {
+    background: none;
+    border: 2px solid var(--purple-light);
+    color: var(--text-muted);
+    font-family: 'Montserrat', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 100px;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+
+  .btn-restart:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+
+  /* ─── Slide animation ─── */
+  .slide-in {
+    animation: slideUp 0.35s ease both;
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ INTRO ══════════ -->
+<div id="screen-intro">
+  <div class="intro-header">
+    <span class="logo">точка банк</span>
+    <span class="intro-tag">Внутренний тест</span>
+  </div>
+
+  <div class="intro-body">
+    <h1 class="impact intro-title">
+      Я И ИИ:<br>
+      <span class="line2">ГДЕ ТЫ<br>СЕЙЧАС?</span>
+    </h1>
+    <p class="intro-subtitle">
+      7 вопросов — и ты поймёшь, как используешь ИИ на самом деле. Без правильных ответов, без оценок. Просто честно.
+    </p>
+    <div class="intro-meta">
+      <span class="meta-pill">2–3 минуты</span>
+      <span class="meta-pill">Анонимно</span>
+      <span class="meta-pill">Результат сразу</span>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">НАЧАТЬ →</button>
+  </div>
+</div>
+
+<!-- ══════════ QUIZ ══════════ -->
+<div id="screen-quiz">
+  <div class="quiz-header">
+    <div class="quiz-top">
+      <span class="logo">точка банк</span>
+      <span class="q-counter" id="q-counter">1 / 7</span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="quiz-body" id="quiz-body">
+    <!-- rendered by JS -->
+  </div>
+
+  <div class="quiz-nav">
+    <button class="btn-back" id="btn-back" onclick="prevQ()" style="visibility:hidden">← Назад</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">ДАЛЬШЕ →</button>
+  </div>
+</div>
+
+<!-- ══════════ RESULT ══════════ -->
+<div id="screen-result"></div>
+
+<script>
+const questions = [
+  {
+    type: 'choice',
+    text: 'КОГДА ПОЯВЛЯЕТСЯ НОВАЯ ЗАДАЧА, ИИ — ЭТО...',
+    options: [
+      { text: 'Иногда открываю ChatGPT, если вдруг вспомню про него', level: 1 },
+      { text: 'Один из первых шагов — посмотреть, как ИИ может помочь', level: 2 },
+      { text: 'Часть рабочего процесса: знаю, куда и с чем идти', level: 3 },
+      { text: 'Проектирую задачи так, чтобы ИИ делал большую часть рутины', level: 4 },
+    ]
+  },
+  {
+    type: 'choice',
+    text: 'КАК ОБЫЧНО ВЫГЛЯДИТ ТВОЙ ЗАПРОС К ИИ?',
+    options: [
+      { text: '"Напиши мне текст про Х" — и смотрю, что выйдет', level: 1 },
+      { text: 'Объясняю контекст, даю роль, уточняю формат — итерирую', level: 2 },
+      { text: 'У меня есть шаблоны промптов под разные задачи', level: 3 },
+      { text: 'Пишу системные инструкции, использую цепочки промптов', level: 4 },
+    ]
+  },
+  {
+    type: 'choice',
+    text: 'КАКИЕ ИНСТРУМЕНТЫ ТЫ ИСПОЛЬЗУЕШЬ?',
+    options: [
+      { text: 'ChatGPT — и этого пока хватает', level: 1 },
+      { text: 'Пару инструментов: ChatGPT, Claude или что-то ещё', level: 2 },
+      { text: 'Разные инструменты под разные задачи, иногда связываю их', level: 3 },
+      { text: 'Строю пайплайны: API, автоматизации, связки между системами', level: 4 },
+    ]
+  },
+  {
+    type: 'choice',
+    text: 'ЧТО ТЫ ДЕЛАЕШЬ С ОТВЕТОМ ОТ ИИ?',
+    options: [
+      { text: 'Беру как есть, максимум чуть правлю', level: 1 },
+      { text: 'Дорабатываю, уточняю, прошу переделать — несколько итераций', level: 2 },
+      { text: 'Использую как черновик или структуру, дальше разворачиваю сам', level: 3 },
+      { text: 'Ответ ИИ — часть системы, он уходит дальше в другой процесс', level: 4 },
+    ]
+  },
+  {
+    type: 'choice',
+    text: 'КАК ТЫ ОТНОСИШЬСЯ К ИИ В КОНТЕКСТЕ РАБОТЫ КОЛЛЕГ?',
+    options: [
+      { text: 'Ну, у каждого своя история', level: 1 },
+      { text: 'Иногда советую попробовать, если вижу, что может помочь', level: 2 },
+      { text: 'Делюсь промптами, примерами, показываю как делаю сам', level: 3 },
+      { text: 'Помогаю выстраивать процессы, провожу разборы, обучаю системно', level: 4 },
+    ]
+  },
+  {
+    type: 'open',
+    text: 'ОПИШИ ЗАДАЧУ, С КОТОРОЙ ИИ РЕАЛЬНО ПОМОГ — ИЛИ МОГ БЫ',
+    placeholder: `Например:
+• «Пишу резюме каждой встречи вручную — занимает час, хочу автоматизировать»
+• «Попросил переписать регламент понятным языком — вышло за 10 минут»
+• «Хочу делать дайджест новостей для команды, но не знаю с чего начать»
+• «Составляю однотипные письма клиентам — думаю, тут можно сэкономить время»`,
+  },
+  {
+    type: 'open',
+    text: 'ПРОБОВАЛ ЧТО-ТО С ИИ, НО НЕ ПОЛУЧИЛОСЬ ТАК, КАК ХОТЕЛ?',
+    placeholder: `Например:
+• «Просил написать текст — получилось слишком официально и безлично»
+• «Пробовал анализировать данные — не понял, как правильно объяснить задачу»
+• «Ответы слишком общие, не попадают в контекст нашей работы»
+• «Не знаю, как объяснить ИИ что именно мне нужно — каждый раз угадываю»`,
+  },
+];
+
+const results = {
+  1: {
+    color: '#7B3FE4',
+    levelTag: 'Level 1 · Casual User',
+    heroTitle: 'ТЫ ПОПРОБОВАЛ —\nИ ЭТО УЖЕ ЧТО-ТО',
+    desc: 'ИИ пока для тебя — скорее любопытство, чем инструмент. Иногда открываешь ChatGPT, берёшь ответ и идёшь дальше. Ничего плохого: многие именно так и начинают.',
+    key: '<strong>Главное, что ты сейчас пропускаешь</strong> — ИИ работает намного лучше, если ему объяснить контекст. Один хороший промпт меняет всё.',
+    next: 'На практикуме разберём, как сделать первый нормальный запрос — и сразу почувствовать разницу. Без теории, только руками.',
+    steps: [
+      { num: '01', title: 'Попробуй один конкретный сценарий', text: 'Возьми задачу, которую делаешь руками каждую неделю — и попроси ИИ помочь именно с ней. Не «напиши что-нибудь», а «вот задача, вот контекст».' },
+      { num: '02', title: 'Объясняй как коллеге', text: 'Представь, что объясняешь задачу новому умному сотруднику. Кто ты, что нужно, для кого, в каком формате. Чем больше контекста — тем лучше результат.' },
+      { num: '03', title: 'Не бери первый ответ', text: 'Скажи «переделай вот так» или «сделай короче / формальнее / с примерами». ИИ не обижается — он ждёт уточнений.' },
+    ],
+    dots: 1,
+  },
+  2: {
+    color: '#5f2fc0',
+    levelTag: 'Level 2 · Active User',
+    heroTitle: 'ТЫ В ПРОЦЕССЕ —\nИ ЭТО ВИДНО',
+    desc: 'Используешь ИИ регулярно, даёшь контекст, итерируешь. Уже есть ощущение, что это работает — но иногда кажется, что результат мог бы быть лучше.',
+    key: '<strong>Следующий шаг</strong> — не больше инструментов, а глубже в промптинг. Структура задачи, роль, примеры — и ответы станут точнее.',
+    next: 'На практикуме покажем, как вытащить максимум из тех инструментов, которые уже есть. Плюс разберём реальные кейсы из твоей работы.',
+    steps: [
+      { num: '01', title: 'Дай ИИ роль', text: 'Начинай промпт с «Ты опытный [кто]». Например: «Ты опытный редактор внутренних коммуникаций». Это сильно меняет тон и точность ответа.' },
+      { num: '02', title: 'Добавь примеры', text: 'Покажи, как должен выглядеть результат: «Вот пример хорошего текста в нашем стиле. Напиши похожее про X». Примеры работают лучше любых инструкций.' },
+      { num: '03', title: 'Сохраняй промпты которые работают', text: 'Заведи простой документ — и копируй туда удачные запросы. Через месяц у тебя будет личная библиотека, которая экономит часы.' },
+    ],
+    dots: 2,
+  },
+  3: {
+    color: '#4a23a0',
+    levelTag: 'Level 3 · Power User',
+    heroTitle: 'ТЫ УЖЕ СТРОИШЬ,\nА НЕ ПРОСТО\nИСПОЛЬЗУЕШЬ',
+    desc: 'У тебя есть система: промпты, инструменты, понимание, куда что идёт. ИИ встроен в твою работу — и это меняет скорость.',
+    key: '<strong>Что интересно дальше</strong> — связки между инструментами, автоматизации, масштабирование на задачи команды.',
+    next: 'На практикуме ты скорее всего будешь в роли человека, у которого спрашивают. Готовь кейсы — они пригодятся.',
+    steps: [
+      { num: '01', title: 'Автоматизируй повторяющееся', text: 'Найди задачу, которую делаешь по одному сценарию раз в неделю — и попробуй Make или n8n, чтобы ИИ делал её без твоего участия.' },
+      { num: '02', title: 'Подключи ИИ к данным команды', text: 'NotebookLM или Claude Projects — загрузи внутренние документы, регламенты, брифы. Получишь ассистента, который знает контекст вашей работы.' },
+      { num: '03', title: 'Передай опыт', text: 'Запиши один рабочий промпт с объяснением — почему он устроен именно так. Это лучший способ прокачать команду и самому разобраться глубже.' },
+    ],
+    dots: 3,
+  },
+  4: {
+    color: '#2d1278',
+    levelTag: 'Level 4 · AI-Native',
+    heroTitle: 'ТЫ МЫСЛИШЬ\nПРОЦЕССАМИ —\nЭТО РЕДКОСТЬ',
+    desc: 'ИИ для тебя — не инструмент, а среда. Ты проектируешь задачи вокруг него, строишь связки, обучаешь других. Видишь систему там, где остальные видят кнопки.',
+    key: '<strong>Твоя суперсила</strong> — передать это другим. Не все умеют объяснять то, что у них стало интуитивным.',
+    next: 'На практикуме предлагаем тебе роль ментора или ко-фасилитатора. Твои кейсы — лучший учебный материал.',
+    steps: [
+      { num: '01', title: 'Упакуй один кейс как кейс', text: 'Возьми что-то, что уже работает у тебя — и опиши: задача → что сделал → результат → промпт. Это готовый обучающий материал для команды.' },
+      { num: '02', title: 'Найди точку входа для других', text: 'Подумай, какая задача есть у большинства коллег — и сделай для неё готовый шаблон с объяснением. Низкий порог входа важнее продвинутых инструментов.' },
+      { num: '03', title: 'Смотри на горизонт', text: 'Агенты, мультимодальность, локальные модели — твой уровень позволяет быстро оценивать новое и внедрять раньше других.' },
+    ],
+    dots: 4,
+  },
+};
+
+let current = 0;
+let answers = Array(questions.length).fill(null);
+
+function startQuiz() {
+  document.getElementById('screen-intro').style.display = 'none';
+  const sq = document.getElementById('screen-quiz');
+  sq.style.display = 'flex';
+  renderQ();
+}
+
+function renderQ() {
+  const q = questions[current];
+  const total = questions.length;
+  const pct = (current / total) * 100;
+
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('q-counter').textContent = `${current + 1} / ${total}`;
+  document.getElementById('btn-back').style.visibility = current > 0 ? 'visible' : 'hidden';
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = '';
+  body.className = 'quiz-body slide-in';
+  void body.offsetWidth;
+
+  const label = document.createElement('div');
+  label.className = 'q-label';
+  label.textContent = `Вопрос ${current + 1}`;
+
+  const qtext = document.createElement('div');
+  qtext.className = 'impact q-text';
+  qtext.textContent = q.text;
+
+  body.appendChild(label);
+  body.appendChild(qtext);
+
+  const btn = document.getElementById('btn-next');
+  btn.textContent = current < total - 1 ? 'ДАЛЬШЕ →' : 'УЗНАТЬ РЕЗУЛЬТАТ →';
+
+  if (q.type === 'choice') {
+    const opts = document.createElement('div');
+    opts.className = 'options';
+
+    q.options.forEach((opt, i) => {
+      const el = document.createElement('button');
+      el.className = 'option' + (answers[current] === i ? ' selected' : '');
+      el.innerHTML = `<span class="opt-num">${i + 1}.</span><span>${opt.text}</span>`;
+      el.onclick = () => {
+        opts.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        answers[current] = i;
+        btn.classList.add('ready');
+      };
+      opts.appendChild(el);
+    });
+
+    body.appendChild(opts);
+    btn.className = 'btn-next' + (answers[current] !== null ? ' ready' : '');
+
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'open-q';
+    const ta = document.createElement('textarea');
+    ta.placeholder = q.placeholder;
+    ta.value = answers[current] || '';
+    ta.oninput = () => {
+      answers[current] = ta.value;
+      btn.className = 'btn-next' + (ta.value.trim().length > 0 ? ' ready' : '');
+    };
+    wrap.appendChild(ta);
+    body.appendChild(wrap);
+    btn.className = 'btn-next' + ((answers[current] || '').trim().length > 0 ? ' ready' : '');
+    setTimeout(() => ta.focus(), 150);
+  }
+}
+
+function nextQ() {
+  if (current < questions.length - 1) {
+    current++;
+    renderQ();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (current > 0) { current--; renderQ(); }
+}
+
+const TG_TOKEN = '8888775137:AAGbiUnu5-pCSEXWprm9-MX9q60MScFoE1E';
+const TG_CHAT_ID = '43619874';
+
+async function sendToTelegram(level, answers) {
+  const choiceLabels = questions.slice(0, 5).map((q, i) =>
+    answers[i] !== null ? q.options[answers[i]].text : '—'
+  );
+
+  const text = [
+    '🎯 Новый результат теста',
+    '',
+    'Уровень: Level ' + level,
+    'Дата: ' + new Date().toLocaleString('ru-RU'),
+    '',
+    'Ответы:',
+    '1. ' + choiceLabels[0],
+    '2. ' + choiceLabels[1],
+    '3. ' + choiceLabels[2],
+    '4. ' + choiceLabels[3],
+    '5. ' + choiceLabels[4],
+    '',
+    'Задача (свободный ответ):',
+    answers[5] || '—',
+    '',
+    'Затык (свободный ответ):',
+    answers[6] || '—',
+  ].join('\n');
+
+  try {
+    await fetch('https://api.telegram.org/bot' + TG_TOKEN + '/sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: TG_CHAT_ID,
+        text: text,
+      }),
+    });
+  } catch (e) {
+    console.warn('Telegram: не удалось отправить', e);
+  }
+}
+
+function showResult() {
+  const choiceQs = questions.slice(0, 5);
+  let total = 0;
+  choiceQs.forEach((q, i) => {
+    if (answers[i] !== null) total += q.options[answers[i]].level;
+  });
+  const avg = total / 5;
+  const level = avg <= 1.5 ? 1 : avg <= 2.5 ? 2 : avg <= 3.3 ? 3 : 4;
+  const r = results[level];
+
+  sendToTelegram(level, answers);
+
+  document.getElementById('screen-quiz').style.display = 'none';
+  const rs = document.getElementById('screen-result');
+  rs.style.display = 'flex';
+  rs.style.flexDirection = 'column';
+
+  const dots = [1,2,3,4].map(n =>
+    `<div class="level-dot ${n <= r.dots ? 'active' : ''}"></div>`
+  ).join('');
+
+  const stepsHTML = r.steps.map(s => `
+    <div class="step-card">
+      <div class="step-num">${s.num}</div>
+      <div class="step-content">
+        <div class="step-title">${s.title}</div>
+        <div class="step-text">${s.text}</div>
+      </div>
+    </div>
+  `).join('');
+
+  rs.innerHTML = `
+    <div class="result-hero" style="background:${r.color}">
+      <span class="logo">точка банк</span>
+      <div style="margin-top:20px">
+        <span class="result-level-tag">${r.levelTag}</span>
+        <h2 class="impact result-title-hero" style="white-space:pre-line">${r.heroTitle}</h2>
+        <p class="result-subtitle-hero">${r.desc}</p>
+        <div class="level-dots">${dots}</div>
+      </div>
+    </div>
+
+    <div class="result-body">
+      <div class="result-block">
+        <div class="result-block-label">Ключевое</div>
+        <p>${r.key}</p>
+      </div>
+      <div class="result-next">
+        <div class="result-block-label">На практикуме</div>
+        <p>${r.next}</p>
+      </div>
+    </div>
+
+    <div class="steps-label">Три шага прямо сейчас</div>
+    <div class="steps-list">${stepsHTML}</div>
+
+    <div class="result-footer">
+      <button class="btn-restart" onclick="restart()">← Пройти снова</button>
+    </div>
+  `;
+}
+
+function restart() {
+  current = 0;
+  answers = Array(questions.length).fill(null);
+  document.getElementById('screen-result').style.display = 'none';
+  document.getElementById('screen-intro').style.display = 'flex';
+}
+</script>
+</body>
+</html>
